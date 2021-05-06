@@ -61,9 +61,9 @@ defmodule Doctor.ModuleReport do
 
   defp calculate_missed_docs(module_info) do
     function_arity_list =
-      Enum.map(module_info.user_defined_functions, fn {function, arity, _impl} ->
-        {function, arity}
-      end)
+      module_info.user_defined_functions
+      |> Enum.filter(fn {_function, _arity, impl} -> impl == :none end)
+      |> Enum.map(fn {function, arity, _impl} -> {function, arity} end)
 
     docs_arity_list = Enum.map(module_info.docs, fn doc -> {doc.name, doc.arity} end)
 
@@ -101,21 +101,22 @@ defmodule Doctor.ModuleReport do
       end)
 
     Enum.count(module_info.user_defined_functions, fn {function, arity, impl} ->
-      result = 
-      cond do
-        {function, arity} in function_specs ->
-          false
+      result =
+        cond do
+          {function, arity} in function_specs ->
+            false
 
-        is_boolean(impl) and impl and module_info.behaviours != [] ->
-          false
+          is_boolean(impl) and impl and module_info.behaviours != [] ->
+            false
 
-        is_atom(impl) and impl != :none ->
-          false
+          is_atom(impl) and impl != :none ->
+            false
 
-        true ->
-          true
-      end
-        result
+          true ->
+            true
+        end
+
+      result
     end)
   end
 
