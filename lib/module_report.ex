@@ -101,6 +101,7 @@ defmodule Doctor.ModuleReport do
       end)
 
     Enum.count(module_info.user_defined_functions, fn {function, arity, impl} ->
+      result = 
       cond do
         {function, arity} in function_specs ->
           false
@@ -108,12 +109,13 @@ defmodule Doctor.ModuleReport do
         is_boolean(impl) and impl and module_info.behaviours != [] ->
           false
 
-        is_atom(impl) and impl != :none and module_info.behaviours != [] ->
+        is_atom(impl) and impl != :none ->
           false
 
         true ->
           true
       end
+        result
     end)
   end
 
